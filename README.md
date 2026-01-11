@@ -10,6 +10,7 @@ This repository contains comprehensive documentation for the Bowerbird Make tool
 
 - **[Workflows](workflows/)**: Development workflow documentation
   - [Testing Workflow](workflows/testing.md): How to run and manage tests
+  - [Proposal Guidelines](workflows/proposals.md): How to create and manage design proposals
 
 ## Related Repositories
 
