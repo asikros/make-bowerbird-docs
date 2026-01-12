@@ -2,15 +2,13 @@
 
 This repository contains comprehensive documentation for the Bowerbird Make tools ecosystem.
 
-## Contents
+## Documentation
 
-- **[Requirements](requirements/)**: Style guides and testing guides
-  - [Make Style Guide](requirements/make-styleguide.md): Coding standards and best practices for Makefiles
-  - [Testing Guide](requirements/testing-guide.md): Comprehensive guide for testing Make code
-
-- **[Workflows](workflows/)**: Development workflow documentation
-  - [Testing Workflow](workflows/testing.md): How to run and manage tests
-  - [Proposal Guidelines](workflows/proposals.md): How to create and manage design proposals
+- **[Make Style Guide](docs/make-styleguide.md)** - Coding standards and best practices for Makefiles
+- **[Testing Guide](docs/testing-guide.md)** - Comprehensive guide for testing Make code
+- **[Testing Workflow](docs/testing-workflow.md)** - How to run and manage tests
+- **[Development Directory Structure](docs/development-structure.md)** - Standard structure for development directories
+- **[Proposal Guidelines](docs/proposals.md)** - How to create and manage design proposals
 
 ## Related Repositories
 
