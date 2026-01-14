@@ -61,6 +61,39 @@ test-strings:
 	$(call bowerbird::test::compare-strings,alpha,alpha)
 ```
 
+**No Block Headers:**
+
+Do not add visual block separators or headers above test targets. Test names should be self-explanatory:
+
+```makefile
+# Good - clean, no clutter
+test-mock-git-clone-branch:
+	...
+
+test-mock-git-clone-revision:
+	...
+
+
+# Bad - unnecessary block headers
+# ============================================================================
+# Test 1: Basic git clone with branch (shallow)
+# ============================================================================
+test-mock-git-clone-branch:
+	...
+
+# ============================================================================
+# Test 2: Git clone with specific revision (SHA)
+# ============================================================================
+test-mock-git-clone-revision:
+	...
+```
+
+**Rationale:**
+- Test names already describe what they do
+- Block headers add visual noise without value
+- Makes test files harder to scan
+- Violates "test names should be descriptive" principle
+
 ## Error Message Testing
 
 **CRITICAL: All error messages and warnings MUST be tested.**
