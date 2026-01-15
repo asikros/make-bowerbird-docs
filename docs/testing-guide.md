@@ -46,6 +46,54 @@ test-compare-file-content-error-message: ...
 | `bowerbird-compare.mk` | `bowerbird::test::compare-sets` | `test-compare-sets.mk` |
 | `bowerbird-compare.mk` | `bowerbird::test::compare-files` | `test-compare-files.mk` |
 
+### File Naming Conventions
+
+**Test files vs Fixture files:**
+
+Files in the test directory follow a naming convention:
+
+| Prefix | Purpose | Auto-discovered |
+|--------|---------|-----------------|
+| `test-*.mk` | Test files with runnable test targets | Yes - found by test suite |
+| `fixture-*.mk` | Shared helper macros, expected values | No - included by test files |
+
+**Test files** (`test-*.mk`):
+- Contain runnable test targets
+- Automatically discovered by `bowerbird::test::find`
+- Named after what they test: `test-<feature>-<parameter>.mk`
+
+**Fixture files** (`fixture-*.mk`):
+- Provide shared macros for generating expected output
+- Centralize expected values so changes only need to be made in one place
+- Included by multiple test files via `include $(dir $(lastword $(MAKEFILE_LIST)))fixture-<name>.mk`
+- NOT discovered or run directly by the test suite
+
+**Example:**
+```makefile
+# fixture-git-dependency-mock-expected.mk
+# Shared fixture providing expected clone output templates
+define bowerbird::test::expected-clone
+# ... generates expected git clone command output based on parameters
+endef
+```
+
+```makefile
+# test-git-dependency-mock-branch.mk
+include $(dir $(lastword $(MAKEFILE_LIST)))fixture-git-dependency-mock-expected.mk
+
+test-git-dependency-mock-branch:
+	# ... test logic ...
+	$(call bowerbird::test::compare-file-content-from-var,$(WORKDIR_TEST)/$@/results,expected-branch)
+
+expected-branch := $(call bowerbird::test::expected-clone,branch,$(URL),$(PATH),main,entry.mk)
+```
+
+**Benefits of fixture files:**
+- Changes to expected output format only need to be made once
+- Test files remain focused on test logic
+- Reduces duplication across related tests
+- Easier to maintain when the underlying implementation changes
+
 ### Test Target Naming
 
 Test targets should have descriptive names that explain what they test. **No docstrings needed for test targets:**
