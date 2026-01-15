@@ -97,7 +97,9 @@ This consistency makes the codebase more navigable and predictable.
 
 ### Macro/Function Docstrings
 
-Document all public macros with structured comments. Use simple comma-separated argument names in the header, and add inline parameter comments after the `define` statement:
+Document all public macros with structured comments. Use simple comma-separated argument names in the header, and add inline parameter comments after the `define` statement.
+
+**No Block Headers:** Do not use decorative section dividers (e.g., `# ====...` or `# ----...`). Docstrings provide sufficient documentation and organization. Block headers add visual noise without adding value.
 
 ```makefile
 # bowerbird::test::compare-strings, str1, str2
