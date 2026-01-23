@@ -309,6 +309,70 @@ test-macro-creates-files:
 	test -f $(WORKDIR_TEST)/$@/expected-file.txt
 ```
 
+### Pattern 7: Mock Testing with Fixtures
+
+For testing targets that execute shell commands (like `clean`), use mock shell testing with fixture macros to generate expected output:
+
+```makefile
+# test-makefile-clean.mk
+# Mock tests for clean target
+
+include $(dir $(lastword $(MAKEFILE_LIST)))fixture-clean-expected.mk
+
+_CURDIR := $(CURDIR)
+_HOME := $(HOME)
+
+test-makefile-clean-single-path:
+	@mkdir -p $(_CURDIR)/.make/test-mock-clean
+	@mkdir -p $(WORKDIR_TEST)/$@
+	@: > $(WORKDIR_TEST)/$@/results
+	$(MAKE) -j1 \
+		BOWERBIRD_MOCK_RESULTS=$(WORKDIR_TEST)/$@/results \
+		PATHS_CLEAN="$(_CURDIR)/.make/test-mock-clean" \
+		clean 2>/dev/null || true
+	$(call bowerbird::test::compare-file-content-from-var,$(WORKDIR_TEST)/$@/results,expected-clean-single-path)
+	@rm -rf $(_CURDIR)/.make/test-mock-clean
+
+expected-clean-single-path := $(call bowerbird::test-fixture::expected-clean,$(_CURDIR)/.make/test-mock-clean)
+
+test-makefile-clean-multiple-paths:
+	@mkdir -p $(_CURDIR)/.make/test-mock-clean/deps
+	@mkdir -p $(WORKDIR_TEST)/$@
+	@: > $(WORKDIR_TEST)/$@/results
+	$(MAKE) -j1 \
+		BOWERBIRD_MOCK_RESULTS=$(WORKDIR_TEST)/$@/results \
+		PATHS_CLEAN="$(_CURDIR)/.make/test-mock-clean/deps $(_CURDIR)/.make/test-mock-clean" \
+		clean 2>/dev/null || true
+	$(call bowerbird::test::compare-file-content-from-var,$(WORKDIR_TEST)/$@/results,expected-clean-multiple-paths)
+	@rm -rf $(_CURDIR)/.make/test-mock-clean
+
+expected-clean-multiple-paths := $(call bowerbird::test-fixture::expected-clean,$(_CURDIR)/.make/test-mock-clean/deps $(_CURDIR)/.make/test-mock-clean)
+```
+
+**Key aspects:**
+1. **Capture runtime variables**: Use `_CURDIR := $(CURDIR)` and `_HOME := $(HOME)` to capture actual runtime paths
+2. **Create test paths**: Use `mkdir -p` to create test directories that the target will clean
+3. **Pass overrides**: Pass variables like `PATHS_CLEAN` on the command line to control what gets cleaned
+4. **Mock results file**: Initialize results file with `: > $(WORKDIR_TEST)/$@/results`
+5. **Recursive make**: Call `$(MAKE)` with `BOWERBIRD_MOCK_RESULTS` to activate mock shell
+6. **Fixture macro**: Call fixture macro to generate expected output with properly expanded variables
+7. **Compare results**: Use `bowerbird::test::compare-file-content-from-var` to verify commands
+8. **Cleanup**: Remove test directories after test completes
+
+**Fixture file pattern:**
+
+```makefile
+# fixture-clean-expected.mk
+# Fixture for generating expected clean command output
+
+define bowerbird::test-fixture::expected-clean
+echo "INFO: Cleaning directories"
+$(foreach path,$1,test -n "$(path)" || (>&2 echo "ERROR: Empty path in cleanup" && exit 1); test "$(path)" != "/" || (>&2 echo "ERROR: Cannot delete root" && exit 1); test "$(path)" != "$(HOME)" || (>&2 echo "ERROR: Cannot delete HOME" && exit 1); echo "$(path)" | grep -q "$(CURDIR)" || (>&2 echo "ERROR: Path must be under project dir: $(path)" && exit 1); rm -rfv -- "$(path)"; )
+echo "INFO: Cleaning complete"
+echo
+endef
+```
+
 ## Anti-Patterns to Avoid
 
 ### ❌ Don't: Create cross-cutting test files

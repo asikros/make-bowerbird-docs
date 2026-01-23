@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 ```
 
+## [Unreleased] - YYYY-MM-DD
+
+### Added
+- Added Pattern 7 to Testing Guide: Mock Testing with Fixtures
+  - Documentation for testing targets that execute shell commands (like `clean`)
+  - Examples using fixture macros to generate expected output
+  - Best practices for capturing runtime variables and comparing results
+
+
 ## [0.1.0] - 2026-01-10
 
 ### Added
