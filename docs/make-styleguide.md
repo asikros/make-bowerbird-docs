@@ -238,3 +238,63 @@ test-mock-basic,\
 mock-test-target,\
 mock-expected-output,)
 ```
+
+### Line Length
+
+**Lines should not exceed 88 characters.** Use line continuations when needed to keep lines under this limit.
+
+**Line Continuation Guidelines:**
+- Always use backslash (`\`) at the end of the line to continue to the next line
+- **Indent continued lines with two tabs** to visually distinguish them from the main line
+- Only in extreme circumstances should continuation line indentation be omitted
+- When breaking function arguments, place the backslash after each comma
+- Use `$(strip)` on macro parameters if whitespace from continuations could affect behavior
+
+```makefile
+# Good - line continuations with two-tab indentation
+$(call bowerbird::core::git-dependency, \
+		name=my-dependency, \
+		path=$(DEPS_DIR)/my-dep, \
+		url=https://github.com/example/repo.git, \
+		branch=main, \
+		entry=bowerbird.mk)
+
+# Good - test target with continued call
+test-compare-sets-multiple-elements:
+	$(call bowerbird::test::compare-sets,\
+		alpha beta gamma,delta epsilon gamma alpha beta)
+
+# Good - long arguments broken across lines
+expected-git-dependency := \
+		$(call fixture::expected-output,branch,https://example.com/very/long/repo/url.git,$(WORKDIR)/path,main,entry.mk)
+
+# Bad - line exceeds 88 characters
+$(call bowerbird::core::git-dependency, name=my-dependency, path=$(DEPS_DIR)/my-dep, url=https://github.com/example/repo.git, branch=main, entry=bowerbird.mk)
+
+# Bad - continuation lines not indented
+$(call bowerbird::core::git-dependency, \
+name=my-dependency, \
+path=$(DEPS_DIR)/my-dep)
+```
+
+**Handling Whitespace from Line Continuations:**
+
+Line continuations can introduce unwanted leading/trailing whitespace in macro arguments. Use `$(strip)` to handle this:
+
+```makefile
+# Without strip - whitespace issues
+define my-macro # arg1, arg2
+	test "$1" = "$2"
+endef
+
+$(call my-macro,\
+		value1,value2)  # Fails: " value1" != "value2"
+
+# With strip - whitespace handled
+define my-macro # arg1, arg2
+	test "$(strip $1)" = "$(strip $2)"
+endef
+
+$(call my-macro,\
+		value1,value2)  # Passes: "value1" = "value2"
+```
